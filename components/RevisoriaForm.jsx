@@ -1,0 +1,131 @@
+"use client";
+import { Field, YesNo, Card } from "./Brand";
+import DocumentosForm from "./DocumentosForm";
+import { TAMANO_LABELS, COMPLEJIDAD_LABELS, sectionCompleteness } from "../lib/model";
+
+export default function RevisoriaForm({ data, setData }) {
+  const set = (section, patch) => setData((d) => ({ ...d, [section]: { ...d[section], ...patch } }));
+  const setDocumentos = (updater) => setData((d) => ({ ...d, documentos: typeof updater === "function" ? updater(d.documentos) : updater }));
+
+  return (
+    <>
+      <Card title="Datos generales" eyebrow="Sección 1" pct={sectionCompleteness(data.generales)}>
+        <div className="op-grid2">
+          <Field label="Giro / industria"><input className="op-input" value={data.generales.giro} onChange={(e) => set("generales", { giro: e.target.value })} /></Field>
+          <Field label="Principales servicios o productos"><input className="op-input" value={data.generales.principalesServicios} onChange={(e) => set("generales", { principalesServicios: e.target.value })} /></Field>
+          <Field label="Fecha de inicio de operaciones"><input type="date" className="op-input" value={data.generales.fechaInicioOperaciones} onChange={(e) => set("generales", { fechaInicioOperaciones: e.target.value })} /></Field>
+          <Field label="Número de sucursales"><input type="number" className="op-input" value={data.generales.numSucursales} onChange={(e) => set("generales", { numSucursales: e.target.value })} /></Field>
+          <Field label="Subsidiarias o afiliadas"><input className="op-input" value={data.generales.subsidiarias} onChange={(e) => set("generales", { subsidiarias: e.target.value })} /></Field>
+          <Field label="Grupo de NIIF al que pertenece">
+            <select className="op-select" value={data.generales.grupoNiif} onChange={(e) => set("generales", { grupoNiif: e.target.value })}>
+              <option value="">Seleccionar…</option>
+              <option value="1">Grupo 1</option>
+              <option value="2">Grupo 2 (Pymes)</option>
+              <option value="3">Grupo 3 (Microempresas)</option>
+            </select>
+          </Field>
+        </div>
+      </Card>
+
+      <Card title="Volumen de cuentas y transacciones" eyebrow="Sección 2" pct={sectionCompleteness(data.cuentas)}>
+        <div className="op-grid2">
+          <Field label="Número de clientes"><input type="number" className="op-input" value={data.cuentas.numClientesCxC} onChange={(e) => set("cuentas", { numClientesCxC: e.target.value })} /></Field>
+          <Field label="Facturas de venta emitidas por mes (promedio)"><input type="number" className="op-input" value={data.cuentas.facturasVentaMensuales} onChange={(e) => set("cuentas", { facturasVentaMensuales: e.target.value })} /></Field>
+        </div>
+        <Field label="Notas sobre volumen de transacciones">
+          <textarea className="op-input" rows={2} value={data.cuentas.notas} onChange={(e) => set("cuentas", { notas: e.target.value })} placeholder="Ej: cuentas por pagar, inventarios, nómina detallada, activos fijos…" />
+        </Field>
+      </Card>
+
+      <Card title="Situación fiscal" eyebrow="Sección 3" pct={sectionCompleteness(data.fiscal)}>
+        <p className="op-card-sub">Últimos períodos revisados por auditores fiscales</p>
+        <div className="op-grid2">
+          <Field label="Retención en la fuente — mes / año">
+            <div style={{ display: "flex", gap: 8 }}>
+              <input className="op-input" placeholder="Mes" value={data.fiscal.retencionFuenteMes} onChange={(e) => set("fiscal", { retencionFuenteMes: e.target.value })} />
+              <input className="op-input" placeholder="Año" value={data.fiscal.retencionFuenteAnio} onChange={(e) => set("fiscal", { retencionFuenteAnio: e.target.value })} />
+            </div>
+          </Field>
+          <Field label="Impuesto a la renta — año">
+            <input className="op-input" placeholder="Año" value={data.fiscal.rentaAnio} onChange={(e) => set("fiscal", { rentaAnio: e.target.value })} />
+          </Field>
+          <Field label="IVA — periodicidad / año">
+            <div style={{ display: "flex", gap: 8 }}>
+              <select className="op-select" value={data.fiscal.ivaPeriodicidad} onChange={(e) => set("fiscal", { ivaPeriodicidad: e.target.value })}>
+                <option value="">Seleccionar…</option>
+                <option value="Bimestre">Bimestre</option>
+                <option value="Cuatrimestre">Cuatrimestre</option>
+                <option value="Año">Año</option>
+              </select>
+              <input className="op-input" placeholder="Año" value={data.fiscal.ivaAnio} onChange={(e) => set("fiscal", { ivaAnio: e.target.value })} />
+            </div>
+          </Field>
+          <Field label="Retenciones de ICA — periodicidad / año">
+            <div style={{ display: "flex", gap: 8 }}>
+              <select className="op-select" value={data.fiscal.icaPeriodicidad} onChange={(e) => set("fiscal", { icaPeriodicidad: e.target.value })}>
+                <option value="">Seleccionar…</option>
+                <option value="Bimestre">Bimestre</option>
+                <option value="Año">Año</option>
+              </select>
+              <input className="op-input" placeholder="Año" value={data.fiscal.icaAnio} onChange={(e) => set("fiscal", { icaAnio: e.target.value })} />
+            </div>
+          </Field>
+        </div>
+        <Field label="Otros períodos / observaciones">
+          <input className="op-input" value={data.fiscal.otrosRevisiones} onChange={(e) => set("fiscal", { otrosRevisiones: e.target.value })} />
+        </Field>
+
+        <p className="op-card-sub" style={{ marginTop: 10 }}>Resultado de revisiones fiscales</p>
+        <YesNo label="¿Está calificada como gran contribuyente?" value={data.fiscal.granContribuyente} onChange={(v) => set("fiscal", { granContribuyente: v })} />
+        <YesNo label="¿Se han presentado recursos de reclamación y/o apelación ante la DIAN?" value={data.fiscal.recursosDian} onChange={(v) => set("fiscal", { recursosDian: v })} />
+        <YesNo label="¿Se ha solicitado aplazamiento y/o fraccionamiento de deudas tributarias?" value={data.fiscal.aplazamientoDeudas} onChange={(v) => set("fiscal", { aplazamientoDeudas: v })} />
+        <YesNo label="¿Existen pérdidas tributarias arrastrables?" value={data.fiscal.perdidasTributarias} onChange={(v) => set("fiscal", { perdidasTributarias: v })} />
+        {data.fiscal.perdidasTributarias && (
+          <Field label="¿En qué? (renta, IVA, etc.)"><input className="op-input" value={data.fiscal.perdidasDetalle} onChange={(e) => set("fiscal", { perdidasDetalle: e.target.value })} /></Field>
+        )}
+        <YesNo label="¿Realiza operaciones gravadas y no gravadas por IVA?" value={data.fiscal.operacionesGravadasNoGravadas} onChange={(v) => set("fiscal", { operacionesGravadasNoGravadas: v })} />
+      </Card>
+
+      <Card title="Personal" eyebrow="Sección 4" pct={sectionCompleteness(data.personal)}>
+        <div className="op-grid2">
+          <Field label="Número de empleados contratados directamente"><input type="number" className="op-input" value={data.personal.empleadosDirectos} onChange={(e) => set("personal", { empleadosDirectos: e.target.value })} /></Field>
+          <Field label="Número de profesionales o contratistas vinculados de manera indirecta"><input type="number" className="op-input" value={data.personal.contratistasIndirectos} onChange={(e) => set("personal", { contratistasIndirectos: e.target.value })} /></Field>
+          <Field label="Número de personas que integran el equipo contable"><input type="number" className="op-input" value={data.personal.equipoContable} onChange={(e) => set("personal", { equipoContable: e.target.value })} /></Field>
+        </div>
+        <Field label="Notas sobre el equipo contable">
+          <textarea className="op-input" rows={2} value={data.personal.notasEquipoContable} onChange={(e) => set("personal", { notasEquipoContable: e.target.value })} />
+        </Field>
+      </Card>
+
+      <Card title="Información administrativa y financiera" eyebrow="Sección 5" pct={sectionCompleteness(data.financiera)}>
+        <Field label="Moneda en la que informa">
+          <div className="op-chip-row">
+            <button type="button" className={`op-chip ${data.financiera.moneda === "pesos" ? "active-yes" : ""}`} onClick={() => set("financiera", { moneda: "pesos" })}>Pesos</button>
+            <button type="button" className={`op-chip ${data.financiera.moneda === "dolares" ? "active-yes" : ""}`} onClick={() => set("financiera", { moneda: "dolares" })}>Dólares</button>
+          </div>
+        </Field>
+        <p className="op-card-sub">Ventas anuales</p>
+        <div className="op-grid2">
+          <Field label="Año actual"><input type="number" className="op-input" value={data.financiera.ventasAnioActual} onChange={(e) => set("financiera", { ventasAnioActual: e.target.value })} /></Field>
+          <Field label="Año anterior"><input type="number" className="op-input" value={data.financiera.ventasAnioAnterior} onChange={(e) => set("financiera", { ventasAnioAnterior: e.target.value })} /></Field>
+        </div>
+        <p className="op-card-sub">Resultado contable del ejercicio (utilidad / pérdida)</p>
+        <div className="op-grid2">
+          <Field label="Año actual"><input type="number" className="op-input" value={data.financiera.resultadoActual} onChange={(e) => set("financiera", { resultadoActual: e.target.value })} /></Field>
+          <Field label="Año anterior"><input type="number" className="op-input" value={data.financiera.resultadoAnterior} onChange={(e) => set("financiera", { resultadoAnterior: e.target.value })} /></Field>
+          <Field label="Activo fijo (cantidad de ítems)"><input type="number" className="op-input" value={data.financiera.activoFijoCantidad} onChange={(e) => set("financiera", { activoFijoCantidad: e.target.value })} /></Field>
+        </div>
+        <Field label="Notas financieras adicionales">
+          <textarea className="op-input" rows={2} value={data.financiera.notas} onChange={(e) => set("financiera", { notas: e.target.value })} />
+        </Field>
+      </Card>
+
+      <DocumentosForm data={data.documentos} setData={setDocumentos} />
+
+      <div className="op-card">
+        <div className="op-card-title">Observaciones adicionales</div>
+        <textarea className="op-input" rows={3} value={data.notasGenerales} onChange={(e) => setData((d) => ({ ...d, notasGenerales: e.target.value }))} />
+      </div>
+    </>
+  );
+}
